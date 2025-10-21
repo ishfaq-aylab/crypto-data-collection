@@ -1,0 +1,274 @@
+{
+  "summary": {
+    "binance": {
+      "market_data": 2355,
+      "order_book_data": 298,
+      "tick_prices": 0,
+      "volume_liquidity": 30,
+      "funding_rates": 0,
+      "open_interest": 0
+    },
+    "bybit": {
+      "market_data": 205,
+      "order_book_data": 1200,
+      "tick_prices": 43,
+      "volume_liquidity": 0,
+      "funding_rates": 0,
+      "open_interest": 0
+    },
+    "kraken": {
+      "market_data": 0,
+      "order_book_data": 0,
+      "tick_prices": 0,
+      "volume_liquidity": 0,
+      "funding_rates": 0,
+      "open_interest": 0
+    },
+    "okx": {
+      "market_data": 296,
+      "order_book_data": 289,
+      "tick_prices": 78,
+      "volume_liquidity": 0,
+      "funding_rates": 0,
+      "open_interest": 0
+    },
+    "gate": {
+      "market_data": 13,
+      "order_book_data": 256,
+      "tick_prices": 0,
+      "volume_liquidity": 0,
+      "funding_rates": 0,
+      "open_interest": 0
+    }
+  },
+  "samples": {
+    "binance": {
+      "market_data": [
+        {
+          "timestamp": "2025-10-20T01:04:02.386903",
+          "symbol": "BTCUSDT",
+          "price": 108858.86499999999,
+          "volume": 0.0,
+          "bid": 108858.86,
+          "ask": 108858.87
+        },
+        {
+          "timestamp": "2025-10-20T01:04:02.388945",
+          "symbol": "ETHUSDT",
+          "price": 3983.5550000000003,
+          "volume": 0.0,
+          "bid": 3983.55,
+          "ask": 3983.56
+        }
+      ],
+      "order_book_data": [
+        {
+          "timestamp": "2025-10-20T01:04:02.555843",
+          "symbol": "BTCUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        },
+        {
+          "timestamp": "2025-10-20T01:04:02.556082",
+          "symbol": "ETHUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        }
+      ],
+      "tick_prices": [],
+      "volume_liquidity": [
+        {
+          "timestamp": "2025-10-20T01:04:03.120426",
+          "symbol": "BTCUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        },
+        {
+          "timestamp": "2025-10-20T01:04:03.133067",
+          "symbol": "ETHUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        }
+      ],
+      "funding_rates": [],
+      "open_interest": []
+    },
+    "bybit": {
+      "market_data": [
+        {
+          "timestamp": "2025-10-20T01:04:02.508063",
+          "symbol": "BTCUSDT",
+          "price": 108804.4,
+          "volume": 50904.08,
+          "bid": 108804.3,
+          "ask": 108804.4
+        },
+        {
+          "timestamp": "2025-10-20T01:04:02.508121",
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "volume": 0.0,
+          "bid": 108804.3,
+          "ask": null
+        }
+      ],
+      "order_book_data": [
+        {
+          "timestamp": "2025-10-20T01:04:02.508873",
+          "symbol": "BTCUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        },
+        {
+          "timestamp": "2025-10-20T01:04:02.512289",
+          "symbol": "BTCUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        }
+      ],
+      "tick_prices": [
+        {
+          "timestamp": "2025-10-20T01:04:02.616512",
+          "symbol": "BTCUSDT",
+          "price": 108815.1,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        },
+        {
+          "timestamp": "2025-10-20T01:04:03.626876",
+          "symbol": "ETHUSDT",
+          "price": 3982.11,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        }
+      ],
+      "volume_liquidity": [],
+      "funding_rates": [],
+      "open_interest": []
+    },
+    "kraken": {
+      "market_data": [],
+      "order_book_data": [],
+      "tick_prices": [],
+      "volume_liquidity": [],
+      "funding_rates": [],
+      "open_interest": []
+    },
+    "okx": {
+      "market_data": [
+        {
+          "timestamp": "2025-10-20T01:04:02.704284",
+          "symbol": "BTCUSDT",
+          "price": 108864.5,
+          "volume": 692048066.6735976,
+          "bid": 108864.5,
+          "ask": 108864.6
+        },
+        {
+          "timestamp": "2025-10-20T01:04:02.704582",
+          "symbol": "BTCUSDT",
+          "price": 108867.3,
+          "volume": 0.0,
+          "bid": null,
+          "ask": null
+        }
+      ],
+      "order_book_data": [
+        {
+          "timestamp": "2025-10-20T01:04:02.834005",
+          "symbol": "BTCUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        },
+        {
+          "timestamp": "2025-10-20T01:04:02.854165",
+          "symbol": "ETHUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        }
+      ],
+      "tick_prices": [
+        {
+          "timestamp": "2025-10-20T01:04:02.771338",
+          "symbol": "BTCUSDT",
+          "price": 108864.6,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        },
+        {
+          "timestamp": "2025-10-20T01:04:02.771733",
+          "symbol": "BTCUSDT",
+          "price": 108864.7,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        }
+      ],
+      "volume_liquidity": [],
+      "funding_rates": [],
+      "open_interest": []
+    },
+    "gate": {
+      "market_data": [
+        {
+          "timestamp": "2025-10-20T01:04:03.721149",
+          "symbol": "ETHUSDT",
+          "price": 3983.8,
+          "volume": 143209.937,
+          "bid": 3983.81,
+          "ask": 3983.82
+        },
+        {
+          "timestamp": "2025-10-20T01:04:04.725773",
+          "symbol": "ETHUSDT",
+          "price": 3983.86,
+          "volume": 143210.152,
+          "bid": 3983.89,
+          "ask": 3983.9
+        }
+      ],
+      "order_book_data": [
+        {
+          "timestamp": "2025-10-20T01:04:03.218747",
+          "symbol": "BTCUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        },
+        {
+          "timestamp": "2025-10-20T01:04:03.311425",
+          "symbol": "BTCUSDT",
+          "price": null,
+          "volume": null,
+          "bid": null,
+          "ask": null
+        }
+      ],
+      "tick_prices": [],
+      "volume_liquidity": [],
+      "funding_rates": [],
+      "open_interest": []
+    }
+  },
+  "timestamp": "2025-10-20T01:04:27.383257"
+}

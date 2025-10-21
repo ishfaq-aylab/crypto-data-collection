@@ -1,0 +1,116 @@
+{
+  "collection_strategy": {
+    "description": "4-Year Historical Data Collection Configuration",
+    "version": "1.0",
+    "created": "2025-10-21"
+  },
+  
+  "exchanges": {
+    "binance": {
+      "enabled": true,
+      "rate_limit": 1200,
+      "rate_limit_window": 60,
+      "max_requests_per_batch": 100,
+      "delay_between_requests": 0.05,
+      "symbols": ["BTCUSDT", "BTCUSDC", "BTCBUSD"],
+      "timeframes": ["1m", "1h"],
+      "endpoints": {
+        "klines": "https://api.binance.com/api/v3/klines",
+        "trades": "https://api.binance.com/api/v3/aggTrades"
+      }
+    },
+    
+    "bybit": {
+      "enabled": true,
+      "rate_limit": 120,
+      "rate_limit_window": 60,
+      "max_requests_per_batch": 50,
+      "delay_between_requests": 0.5,
+      "symbols": ["BTCUSDT", "BTCUSDC"],
+      "timeframes": ["1m", "1h"],
+      "endpoints": {
+        "klines": "https://api.bybit.com/v5/market/kline",
+        "trades": "https://api.bybit.com/v5/market/recent-trade"
+      }
+    },
+    
+    "kraken": {
+      "enabled": true,
+      "rate_limit": 60,
+      "rate_limit_window": 60,
+      "max_requests_per_batch": 30,
+      "delay_between_requests": 1.0,
+      "symbols": ["XXBTZUSD", "XBT/USD", "XBT/USDC", "XBT/USDT"],
+      "timeframes": ["1m", "1h"],
+      "endpoints": {
+        "ohlc": "https://api.kraken.com/0/public/OHLC",
+        "trades": "https://api.kraken.com/0/public/Trades"
+      }
+    },
+    
+    "gate": {
+      "enabled": true,
+      "rate_limit": 100,
+      "rate_limit_window": 60,
+      "max_requests_per_batch": 50,
+      "delay_between_requests": 0.6,
+      "symbols": ["BTC_USDT", "BTC_USDC"],
+      "timeframes": ["1m", "1h"],
+      "endpoints": {
+        "candlesticks": "https://api.gateio.ws/api/v4/spot/candlesticks",
+        "trades": "https://api.gateio.ws/api/v4/spot/trades"
+      }
+    },
+    
+    "okx": {
+      "enabled": false,
+      "reason": "SSL connection issues - network/firewall related",
+      "rate_limit": 20,
+      "rate_limit_window": 60,
+      "max_requests_per_batch": 10,
+      "delay_between_requests": 3.0,
+      "symbols": ["BTC-USDT", "BTC-USDC"],
+      "timeframes": ["1m", "1h"],
+      "endpoints": {
+        "candles": "https://www.okx.com/api/v5/market/history-candles",
+        "trades": "https://www.okx.com/api/v5/market/history-trades"
+      }
+    }
+  },
+  
+  "collection_settings": {
+    "start_date": "2021-01-01",
+    "end_date": "2024-12-31",
+    "batch_size_months": 1,
+    "resume_on_restart": true,
+    "progress_save_interval": 10,
+    "error_retry_attempts": 3,
+    "error_retry_delay": 5,
+    "max_concurrent_exchanges": 1,
+    "max_concurrent_symbols": 1,
+    "max_concurrent_timeframes": 1
+  },
+  
+  "data_quality": {
+    "validate_timestamps": true,
+    "check_price_ranges": true,
+    "verify_volume_positive": true,
+    "detect_duplicates": true,
+    "min_data_points_per_month": 100
+  },
+  
+  "monitoring": {
+    "log_level": "INFO",
+    "progress_report_interval": 100,
+    "performance_metrics": true,
+    "error_alerting": true,
+    "disk_space_warning_gb": 10
+  },
+  
+  "estimated_duration": {
+    "total_requests": 3840,
+    "estimated_hours": 8,
+    "estimated_days": 0.33,
+    "notes": "Based on rate limits and 4 exchanges, 2-4 Bitcoin USD pairs per exchange, 2 timeframes (1m, 1h), 48 months"
+  }
+}

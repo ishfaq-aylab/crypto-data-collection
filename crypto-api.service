@@ -1,0 +1,37 @@
+[Unit]
+Description=Crypto Data API Server
+After=network.target mongodb.service
+Wants=mongodb.service
+
+[Service]
+Type=notify
+User=ishfaq
+Group=ishfaq
+WorkingDirectory=/home/ishfaq/Documents/dev/aylabs/exchanges-websockets
+Environment=PATH=/home/ishfaq/Documents/dev/aylabs/exchanges-websockets/venv/bin
+Environment=FLASK_ENV=production
+Environment=PYTHONPATH=/home/ishfaq/Documents/dev/aylabs/exchanges-websockets
+ExecStart=/home/ishfaq/Documents/dev/aylabs/exchanges-websockets/venv/bin/gunicorn --config gunicorn.conf.py wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PIDFile=/home/ishfaq/Documents/dev/aylabs/exchanges-websockets/logs/gunicorn.pid
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=crypto-api
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/ishfaq/Documents/dev/aylabs/exchanges-websockets/logs
+ReadWritePaths=/home/ishfaq/Documents/dev/aylabs/exchanges-websockets
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

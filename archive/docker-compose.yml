@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # MongoDB for data storage
+  mongodb:
+    image: mongo:7.0
+    container_name: crypto_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: crypto_trading_data
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - crypto_network
+
+  # Redis for real-time data
+  redis:
+    image: redis:7.2-alpine
+    container_name: crypto_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - crypto_network
+
+  # PostgreSQL for historical data (optional)
+  postgres:
+    image: postgres:15-alpine
+    container_name: crypto_postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: crypto_trading
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - crypto_network
+
+  # Main data collection service
+  data_collector:
+    build: .
+    container_name: crypto_data_collector
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+      - redis
+      - postgres
+    environment:
+      MONGODB_URL: mongodb://admin:password123@mongodb:27017/crypto_trading_data?authSource=admin
+      REDIS_URL: redis://redis:6379
+      POSTGRES_URL: postgresql://postgres:password123@postgres:5432/crypto_trading
+      LOG_LEVEL: INFO
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    networks:
+      - crypto_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis; r=redis.Redis(host='redis', port=6379); r.ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring service (optional)
+  monitoring:
+    image: prom/prometheus:latest
+    container_name: crypto_monitoring
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - crypto_network
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: crypto_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - crypto_network
+
+volumes:
+  mongodb_data:
+  redis_data:
+  postgres_data:
+  grafana_data:
+
+networks:
+  crypto_network:
+    driver: bridge

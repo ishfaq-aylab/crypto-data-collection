@@ -1,0 +1,54 @@
+# Production requirements for crypto trading data collection
+
+# Core dependencies
+asyncio-mqtt==0.16.1
+websockets==15.0.1
+aiohttp==3.13.0
+aiohappyeyeballs==2.6.1
+
+# Data processing
+pandas==2.3.3
+numpy==2.3.4
+pydantic==2.12.2
+
+# Database
+pymongo==4.15.3
+redis==5.0.1
+psycopg2-binary==2.9.9
+motor==3.7.1
+
+# Monitoring and logging
+loguru==0.7.3
+psutil==6.1.0
+
+# Configuration
+python-dotenv==1.1.1
+PyYAML==6.0.2
+
+# HTTP requests
+requests==2.32.3
+
+# Email notifications
+secure-smtplib==0.1.1
+
+# Data validation
+jsonschema==4.23.0
+
+# Performance monitoring
+memory-profiler==0.61.0
+
+# Development and testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0
+
+# Optional: Time series database
+# influxdb-client==1.45.0
+
+# Optional: Message queuing
+# celery==5.4.0
+# kombu==5.4.0
+
+# Optional: Advanced monitoring
+# prometheus-client==0.21.0
+# grafana-api==1.0.3

@@ -1,0 +1,24 @@
+# Simple requirements for MongoDB data collection
+
+# Core dependencies
+websockets==15.0.1
+aiohttp==3.13.0
+aiohappyeyeballs==2.6.1
+
+# Data processing
+pandas==2.3.3
+numpy==2.3.4
+pydantic==2.12.2
+
+# Database
+pymongo==4.15.3
+motor==3.7.1
+
+# Logging
+loguru==0.7.3
+
+# Configuration
+python-dotenv==1.1.1
+
+# HTTP requests
+requests==2.32.3
