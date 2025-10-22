@@ -1,0 +1,153 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:618628518037:task-definition/crypto-api-task:2",
+    "containerDefinitions": [
+        {
+            "name": "api-server",
+            "image": "618628518037.dkr.ecr.us-east-1.amazonaws.com/crypto-data-api:latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 5001,
+                    "hostPort": 5001,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "API_HOST",
+                    "value": "0.0.0.0"
+                },
+                {
+                    "name": "MONGODB_DATABASE",
+                    "value": "crypto_trading_data"
+                },
+                {
+                    "name": "API_PORT",
+                    "value": "5001"
+                },
+                {
+                    "name": "API_DEBUG",
+                    "value": "false"
+                },
+                {
+                    "name": "MONGODB_URL",
+                    "value": "mongodb://admin:adminaylab123@16.171.27.60:27017"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/crypto-api",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:5001/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 60
+            },
+            "systemControls": []
+        },
+        {
+            "name": "data-collection",
+            "image": "618628518037.dkr.ecr.us-east-1.amazonaws.com/crypto-data-api:latest",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": true,
+            "command": [
+                "python",
+                "run_data_collection.py"
+            ],
+            "environment": [
+                {
+                    "name": "COLLECTION_POLL_INTERVAL",
+                    "value": "30"
+                },
+                {
+                    "name": "MONGODB_DATABASE",
+                    "value": "crypto_trading_data"
+                },
+                {
+                    "name": "COLLECTION_DURATION",
+                    "value": "0"
+                },
+                {
+                    "name": "MONGODB_URL",
+                    "value": "mongodb://admin:adminaylab123@16.171.27.60:27017"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/crypto-data-collection",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "crypto-api-task",
+    "taskRoleArn": "arn:aws:iam::618628518037:role/ecsTaskRole",
+    "executionRoleArn": "arn:aws:iam::618628518037:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 2,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.container-health-check"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "MANAGED_INSTANCES",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "registeredAt": "2025-10-22T02:46:16.540000+05:00",
+    "registeredBy": "arn:aws:iam::618628518037:user/ishfaq@aylab.io"
+}

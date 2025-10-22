@@ -75,7 +75,7 @@ exchanges-websockets/
 
 ## 🗄️ MongoDB Collections
 
-The system creates 6 collections in the `crypto_trading_data` database:
+The system creates 6 collections in the `model-collections` database:
 
 - `market_data` - Real-time market data
 - `order_book_data` - Order book snapshots
@@ -136,7 +136,7 @@ from pymongo import MongoClient
 from datetime import datetime, timedelta
 
 client = MongoClient("mongodb://localhost:27017")
-db = client["crypto_trading_data"]
+db = client["model-collections"]
 
 # Get latest market data for BTCUSDT
 latest_data = db.market_data.find_one(
@@ -215,13 +215,13 @@ python test_data_collection.py
 
 ```bash
 # Check MongoDB collections
-mongo crypto_trading_data --eval "db.getCollectionNames()"
+mongo model-collections --eval "db.getCollectionNames()"
 
 # Check document counts
-mongo crypto_trading_data --eval "db.market_data.countDocuments()"
+mongo model-collections --eval "db.market_data.countDocuments()"
 
 # Check recent data
-mongo crypto_trading_data --eval "db.market_data.findOne({}, {sort: {timestamp: -1}})"
+mongo model-collections --eval "db.market_data.findOne({}, {sort: {timestamp: -1}})"
 ```
 
 ## 📊 Monitoring

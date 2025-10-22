@@ -11,7 +11,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: crypto_trading_data
+      MONGO_INITDB_DATABASE: model-collections
     volumes:
       - mongodb_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
@@ -57,7 +57,7 @@ services:
       - redis
       - postgres
     environment:
-      MONGODB_URL: mongodb://admin:password123@mongodb:27017/crypto_trading_data?authSource=admin
+      MONGODB_URL: mongodb://admin:password123@mongodb:27017/model-collections?authSource=admin
       REDIS_URL: redis://redis:6379
       POSTGRES_URL: postgresql://postgres:password123@postgres:5432/crypto_trading
       LOG_LEVEL: INFO
