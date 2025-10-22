@@ -149,7 +149,7 @@ aws ecs update-service --cluster crypto-data-cluster --service crypto-api-servic
 AWS_ACCESS_KEY_ID: your-aws-access-key
 AWS_SECRET_ACCESS_KEY: your-aws-secret-key
 MONGODB_URL: your-mongodb-connection-string
-MONGODB_DATABASE: crypto_trading_data
+MONGODB_DATABASE: model-collections
 ```
 
 ## 📊 Monitoring and Management
@@ -213,7 +213,7 @@ aws ecs update-service --cluster crypto-data-cluster --service crypto-api-servic
 ```bash
 # Database
 MONGODB_URL=mongodb://localhost:27017
-MONGODB_DATABASE=crypto_trading_data
+MONGODB_DATABASE=model-collections
 
 # API Server
 API_HOST=0.0.0.0

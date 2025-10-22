@@ -9,7 +9,7 @@ class Config:
     
     # Database Configuration
     MONGODB_URL = os.getenv('MONGODB_URL', 'mongodb://localhost:27017')
-    MONGODB_DATABASE = os.getenv('MONGODB_DATABASE', 'crypto_trading_data')
+    MONGODB_DATABASE = os.getenv('MONGODB_DATABASE', 'model-collections')
     MONGODB_TIMEOUT = int(os.getenv('MONGODB_TIMEOUT', '3000'))
     REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
     POSTGRES_URL = os.getenv('POSTGRES_URL', 'postgresql://user:pass@localhost:5432/crypto_trading')

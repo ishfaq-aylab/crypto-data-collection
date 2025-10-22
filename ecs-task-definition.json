@@ -4,12 +4,12 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "1024",
   "memory": "2048",
-  "executionRoleArn": "arn:aws:iam::ACCOUNT:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::ACCOUNT:role/ecsTaskRole",
+  "executionRoleArn": "arn:aws:iam::618628518037:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::618628518037:role/ecsTaskRole",
   "containerDefinitions": [
     {
       "name": "api-server",
-      "image": "ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/crypto-data-api:latest",
+      "image": "618628518037.dkr.ecr.us-east-1.amazonaws.com/crypto-data-api:latest",
       "portMappings": [
         {
           "containerPort": 5001,
@@ -19,11 +19,11 @@
       "environment": [
         {
           "name": "MONGODB_URL",
-          "value": "mongodb://mongodb:27017"
+          "value": "mongodb://admin:adminaylab123@16.171.27.60:27017"
         },
         {
           "name": "MONGODB_DATABASE",
-          "value": "crypto_trading_data"
+          "value": "model-collections"
         },
         {
           "name": "API_HOST",
@@ -57,16 +57,16 @@
     },
     {
       "name": "data-collection",
-      "image": "ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/crypto-data-api:latest",
+      "image": "618628518037.dkr.ecr.us-east-1.amazonaws.com/crypto-data-api:latest",
       "command": ["python", "run_data_collection.py"],
       "environment": [
         {
           "name": "MONGODB_URL",
-          "value": "mongodb://mongodb:27017"
+          "value": "mongodb://admin:adminaylab123@16.171.27.60:27017"
         },
         {
           "name": "MONGODB_DATABASE",
-          "value": "crypto_trading_data"
+          "value": "model-collections"
         },
         {
           "name": "COLLECTION_DURATION",

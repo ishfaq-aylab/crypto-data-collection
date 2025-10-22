@@ -47,7 +47,7 @@ nano .env
 ```bash
 # Database
 MONGODB_URL="mongodb://localhost:27017"
-MONGODB_DATABASE="crypto_trading_data"
+MONGODB_DATABASE="model-collections"
 
 # API Server
 API_HOST="0.0.0.0"

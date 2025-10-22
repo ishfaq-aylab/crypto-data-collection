@@ -35,7 +35,7 @@ def lambda_handler(event, context):
         
         # Set environment variables
         os.environ['MONGODB_URL'] = event.get('mongodb_url', os.environ.get('MONGODB_URL', 'mongodb://localhost:27017'))
-        os.environ['MONGODB_DATABASE'] = event.get('mongodb_database', os.environ.get('MONGODB_DATABASE', 'crypto_trading_data'))
+        os.environ['MONGODB_DATABASE'] = event.get('mongodb_database', os.environ.get('MONGODB_DATABASE', 'model-collections'))
         
         # Create temporary directory for code
         with tempfile.TemporaryDirectory() as temp_dir:

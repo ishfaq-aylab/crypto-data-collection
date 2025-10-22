@@ -33,10 +33,10 @@ app.json_encoder = JSONEncoder
 # Connect to MongoDB
 try:
     client = MongoClient(Config.MONGODB_URL, serverSelectionTimeoutMS=Config.MONGODB_TIMEOUT)
-    db = client["crypto_trading_data"]
+    db = client[Config.MONGODB_DATABASE]
     # Test connection
     client.admin.command('ping')
-    logger.info("✅ MongoDB connected successfully")
+    logger.info(f"✅ MongoDB connected successfully to database: {Config.MONGODB_DATABASE}")
     mongo_connected = True
 except Exception as e:
     logger.error(f"❌ MongoDB connection failed: {e}")
@@ -90,16 +90,20 @@ def health():
         }), 500
     
     try:
+        # Debug: List all collections in the database
+        available_collections = db.list_collection_names()
+        logger.info(f"📋 Available collections: {available_collections}")
+        
         # Get collection counts
-        collections = {
-            "market_data": db.market_data.count_documents({}),
-            "order_book_data": db.order_book_data.count_documents({}),
-            "tick_prices": db.tick_prices.count_documents({}),
-            "historical_data": db.historical_data.count_documents({}),
-            "volume_liquidity": db.volume_liquidity.count_documents({}),
-            "funding_rates": db.funding_rates.count_documents({}),
-            "open_interest": db.open_interest.count_documents({})
-        }
+        collections = {}
+        for collection_name in ["market_data", "order_book_data", "tick_prices", "historical_data", "volume_liquidity", "funding_rates", "open_interest"]:
+            if collection_name in available_collections:
+                count = db[collection_name].count_documents({})
+                collections[collection_name] = count
+                logger.info(f"📄 {collection_name}: {count:,} documents")
+            else:
+                collections[collection_name] = 0
+                logger.warning(f"⚠️ Collection '{collection_name}' not found")
         
         return jsonify({
             "status": "healthy",
@@ -595,6 +599,150 @@ def get_symbols():
         logger.error(f"Error getting symbols: {e}")
         return jsonify({"error": str(e)}), 500
 
+# ===== LATEST DATA ENDPOINTS (Single Documents) =====
+
+@app.route('/latest')
+def get_latest_all():
+    """Get the latest single document from each collection across all exchanges."""
+    if not mongo_connected:
+        return jsonify({"error": "MongoDB not connected"}), 500
+    
+    try:
+        result = {
+            "timestamp": datetime.now().isoformat(),
+            "data": {}
+        }
+        
+        # Latest market data
+        latest_market = db.market_data.find_one(sort=[("timestamp", -1)])
+        result["data"]["market_data"] = convert_objectid(latest_market) if latest_market else None
+        
+        # Latest order book data
+        latest_order_book = db.order_book_data.find_one(sort=[("timestamp", -1)])
+        result["data"]["order_book_data"] = convert_objectid(latest_order_book) if latest_order_book else None
+        
+        # Latest trade
+        latest_trade = db.tick_prices.find_one(sort=[("timestamp", -1)])
+        result["data"]["trades"] = convert_objectid(latest_trade) if latest_trade else None
+        
+        # Latest OHLCV
+        latest_ohlcv = db.historical_data.find_one(sort=[("timestamp", -1)])
+        result["data"]["ohlcv"] = convert_objectid(latest_ohlcv) if latest_ohlcv else None
+        
+        # Latest funding rate
+        latest_funding = db.funding_rates.find_one(sort=[("timestamp", -1)])
+        result["data"]["funding_rates"] = convert_objectid(latest_funding) if latest_funding else None
+        
+        # Latest open interest
+        latest_open_interest = db.open_interest.find_one(sort=[("timestamp", -1)])
+        result["data"]["open_interest"] = convert_objectid(latest_open_interest) if latest_open_interest else None
+        
+        # Latest volume/liquidity
+        latest_volume = db.volume_liquidity.find_one(sort=[("timestamp", -1)])
+        result["data"]["volume_liquidity"] = convert_objectid(latest_volume) if latest_volume else None
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Error getting latest data: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/latest/<exchange>')
+def get_latest_exchange(exchange):
+    """Get the latest single document from each collection for a specific exchange."""
+    if not mongo_connected:
+        return jsonify({"error": "MongoDB not connected"}), 500
+    
+    try:
+        result = {
+            "exchange": exchange,
+            "timestamp": datetime.now().isoformat(),
+            "data": {}
+        }
+        
+        # Filter by exchange
+        exchange_filter = {"exchange": exchange}
+        
+        # Latest market data for exchange
+        latest_market = db.market_data.find_one(exchange_filter, sort=[("timestamp", -1)])
+        result["data"]["market_data"] = convert_objectid(latest_market) if latest_market else None
+        
+        # Latest order book data for exchange
+        latest_order_book = db.order_book_data.find_one(exchange_filter, sort=[("timestamp", -1)])
+        result["data"]["order_book_data"] = convert_objectid(latest_order_book) if latest_order_book else None
+        
+        # Latest trade for exchange
+        latest_trade = db.tick_prices.find_one(exchange_filter, sort=[("timestamp", -1)])
+        result["data"]["trades"] = convert_objectid(latest_trade) if latest_trade else None
+        
+        # Latest OHLCV for exchange
+        latest_ohlcv = db.historical_data.find_one(exchange_filter, sort=[("timestamp", -1)])
+        result["data"]["ohlcv"] = convert_objectid(latest_ohlcv) if latest_ohlcv else None
+        
+        # Latest funding rate for exchange
+        latest_funding = db.funding_rates.find_one(exchange_filter, sort=[("timestamp", -1)])
+        result["data"]["funding_rates"] = convert_objectid(latest_funding) if latest_funding else None
+        
+        # Latest open interest for exchange
+        latest_open_interest = db.open_interest.find_one(exchange_filter, sort=[("timestamp", -1)])
+        result["data"]["open_interest"] = convert_objectid(latest_open_interest) if latest_open_interest else None
+        
+        # Latest volume/liquidity for exchange
+        latest_volume = db.volume_liquidity.find_one(exchange_filter, sort=[("timestamp", -1)])
+        result["data"]["volume_liquidity"] = convert_objectid(latest_volume) if latest_volume else None
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Error getting latest data for {exchange}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/latest/<exchange>/<data_type>')
+def get_latest_specific(exchange, data_type):
+    """Get the latest single document for a specific exchange and data type."""
+    if not mongo_connected:
+        return jsonify({"error": "MongoDB not connected"}), 500
+    
+    try:
+        # Map data types to collection names
+        collection_map = {
+            "market": "market_data",
+            "orderbook": "order_book_data", 
+            "trades": "tick_prices",
+            "ohlcv": "historical_data",
+            "funding": "funding_rates",
+            "openinterest": "open_interest",
+            "volume": "volume_liquidity"
+        }
+        
+        if data_type not in collection_map:
+            return jsonify({"error": f"Invalid data type. Available: {list(collection_map.keys())}"}), 400
+        
+        collection_name = collection_map[data_type]
+        exchange_filter = {"exchange": exchange}
+        
+        # Get latest document
+        latest_doc = db[collection_name].find_one(exchange_filter, sort=[("timestamp", -1)])
+        
+        if not latest_doc:
+            return jsonify({
+                "exchange": exchange,
+                "data_type": data_type,
+                "message": "No data found",
+                "data": None
+            })
+        
+        return jsonify({
+            "exchange": exchange,
+            "data_type": data_type,
+            "timestamp": datetime.now().isoformat(),
+            "data": convert_objectid(latest_doc)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting latest {data_type} for {exchange}: {e}")
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     print(f"🚀 Starting Real-time Crypto Data API Server on port {Config.API_PORT}...")
     print("📊 Available endpoints:")
@@ -612,6 +760,11 @@ if __name__ == '__main__':
     print("  GET /volume-liquidity - Volume/liquidity only")
     print("  GET /exchanges - List exchanges")
     print("  GET /symbols - List symbols")
+    print("\n🔥 LATEST DATA ENDPOINTS (Single Documents):")
+    print("  GET /latest - Latest single document from each collection")
+    print("  GET /latest/<exchange> - Latest single document for exchange")
+    print("  GET /latest/<exchange>/<data_type> - Latest specific data type")
+    print("    Data types: market, orderbook, trades, ohlcv, funding, openinterest, volume")
     print("\n💡 Query parameters:")
     print("  ?limit=N - Limit number of records")
     print("  ?exchange=NAME - Filter by exchange")

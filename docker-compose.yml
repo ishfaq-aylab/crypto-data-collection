@@ -6,8 +6,8 @@ services:
     ports:
       - "5001:5001"
     environment:
-      - MONGODB_URL=${MONGODB_URL:-mongodb://mongodb:27017}
-      - MONGODB_DATABASE=${MONGODB_DATABASE:-crypto_trading_data}
+      - MONGODB_URL=${MONGODB_URL:-mongodb://admin:adminaylab123@16.171.27.60:27017}
+      - MONGODB_DATABASE=${MONGODB_DATABASE:-model-collections}
       - API_HOST=0.0.0.0
       - API_PORT=5001
       - API_DEBUG=false
@@ -27,8 +27,8 @@ services:
     build: .
     command: python run_data_collection.py
     environment:
-      - MONGODB_URL=${MONGODB_URL:-mongodb://mongodb:27017}
-      - MONGODB_DATABASE=${MONGODB_DATABASE:-crypto_trading_data}
+      - MONGODB_URL=${MONGODB_URL:-mongodb://admin:adminaylab123@16.171.27.60:27017}
+      - MONGODB_DATABASE=${MONGODB_DATABASE:-model-collections}
       - COLLECTION_DURATION=0
       - COLLECTION_POLL_INTERVAL=30
     depends_on:
@@ -41,8 +41,8 @@ services:
     build: .
     command: python manage_historical_collection.py start
     environment:
-      - MONGODB_URL=${MONGODB_URL:-mongodb://mongodb:27017}
-      - MONGODB_DATABASE=${MONGODB_DATABASE:-crypto_trading_data}
+      - MONGODB_URL=${MONGODB_URL:-mongodb://admin:adminaylab123@16.171.27.60:27017}
+      - MONGODB_DATABASE=${MONGODB_DATABASE:-model-collections}
     depends_on:
       - mongodb
     restart: "no"  # Run once for historical data
@@ -57,7 +57,7 @@ services:
       - mongodb_data:/data/db
     restart: unless-stopped
     environment:
-      - MONGO_INITDB_DATABASE=crypto_trading_data
+      - MONGO_INITDB_DATABASE=model-collections
     networks:
       - crypto-network
 

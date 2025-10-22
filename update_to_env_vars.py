@@ -69,7 +69,7 @@ def update_simple_mongodb_collector():
     
     # Replace default parameters
     content = re.sub(
-        r'def __init__\(self, mongodb_url: str = "mongodb://localhost:27017", database_name: str = "crypto_trading_data"\):',
+        r'def __init__\(self, mongodb_url: str = "mongodb://localhost:27017", database_name: str = "model-collections"\):',
         'def __init__(self, mongodb_url: str = Config.MONGODB_URL, database_name: str = Config.MONGODB_DATABASE):',
         content
     )
@@ -118,7 +118,7 @@ def update_collector_config():
     )
     
     content = re.sub(
-        r'"database": "crypto_trading_data",',
+        r'"database": "model-collections",',
         '"database": Config.MONGODB_DATABASE,',
         content
     )

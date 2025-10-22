@@ -158,7 +158,7 @@ echo -e "   - Add these secrets:"
 echo -e "     - AWS_ACCESS_KEY_ID: $AWS_ACCOUNT_ID"
 echo -e "     - AWS_SECRET_ACCESS_KEY: [Your secret key]"
 echo -e "     - MONGODB_URL: mongodb://localhost:27017"
-echo -e "     - MONGODB_DATABASE: crypto_trading_data"
+echo -e "     - MONGODB_DATABASE: model-collections"
 echo ""
 
 # Step 6: Test API

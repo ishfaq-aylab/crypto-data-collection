@@ -229,7 +229,7 @@ Name: MONGODB_URL
 Value: mongodb://localhost:27017
 
 Name: MONGODB_DATABASE
-Value: crypto_trading_data
+Value: model-collections
 ```
 
 ### 5.2 Test CI/CD Pipeline

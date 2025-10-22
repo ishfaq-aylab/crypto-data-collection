@@ -14,14 +14,14 @@ Based on the analysis of your codebase, here are the hardcoded values that can b
 client = MongoClient("mongodb://localhost:27017", serverSelectionTimeoutMS=3000)
 
 # In simple_mongodb_collector.py
-def __init__(self, mongodb_url: str = "mongodb://localhost:27017", database_name: str = "crypto_trading_data"):
+def __init__(self, mongodb_url: str = "mongodb://localhost:27017", database_name: str = "model-collections"):
 ```
 
 ### **Environment Variables to Add:**
 ```bash
 # Database Configuration
 MONGODB_URL=mongodb://localhost:27017
-MONGODB_DATABASE=crypto_trading_data
+MONGODB_DATABASE=model-collections
 MONGODB_TIMEOUT=3000
 REDIS_URL=redis://localhost:6379
 POSTGRES_URL=postgresql://user:pass@localhost:5432/crypto_trading
@@ -179,7 +179,7 @@ class Config:
     
     # Database Configuration
     MONGODB_URL = os.getenv('MONGODB_URL', 'mongodb://localhost:27017')
-    MONGODB_DATABASE = os.getenv('MONGODB_DATABASE', 'crypto_trading_data')
+    MONGODB_DATABASE = os.getenv('MONGODB_DATABASE', 'model-collections')
     MONGODB_TIMEOUT = int(os.getenv('MONGODB_TIMEOUT', '3000'))
     REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
     
@@ -262,7 +262,7 @@ Create a `.env` file with default values:
 ```bash
 # Database Configuration
 MONGODB_URL=mongodb://localhost:27017
-MONGODB_DATABASE=crypto_trading_data
+MONGODB_DATABASE=model-collections
 MONGODB_TIMEOUT=3000
 REDIS_URL=redis://localhost:6379
 

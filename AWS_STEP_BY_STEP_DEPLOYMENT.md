@@ -133,7 +133,7 @@ git push -u origin main
 AWS_ACCESS_KEY_ID: your-aws-access-key
 AWS_SECRET_ACCESS_KEY: your-aws-secret-key
 MONGODB_URL: mongodb://your-mongodb-connection-string
-MONGODB_DATABASE: crypto_trading_data
+MONGODB_DATABASE: model-collections
 ```
 
 ## 🚀 Step 5: Deploy to AWS

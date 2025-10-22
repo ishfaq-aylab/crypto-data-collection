@@ -249,7 +249,7 @@ sudo logrotate /etc/logrotate.d/crypto-api
 sudo apt update && sudo apt upgrade
 
 # Backup database
-mongodump --db crypto_trading_data --out backup/
+mongodump --db model-collections --out backup/
 ```
 
 ## 🎯 Quick Status Check

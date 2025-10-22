@@ -262,11 +262,11 @@ jobs:
       "environment": [
         {
           "name": "MONGODB_URL",
-          "value": "mongodb://mongodb:27017"
+          "value": "mongodb://admin:adminaylab123@16.171.27.60:27017"
         },
         {
           "name": "MONGODB_DATABASE",
-          "value": "crypto_trading_data"
+          "value": "model-collections"
         },
         {
           "name": "API_HOST",
@@ -300,11 +300,11 @@ jobs:
       "environment": [
         {
           "name": "MONGODB_URL",
-          "value": "mongodb://mongodb:27017"
+          "value": "mongodb://admin:adminaylab123@16.171.27.60:27017"
         },
         {
           "name": "MONGODB_DATABASE",
-          "value": "crypto_trading_data"
+          "value": "model-collections"
         }
       ],
       "logConfiguration": {
@@ -450,7 +450,7 @@ Add these secrets to your GitHub repository:
 AWS_ACCESS_KEY_ID: your-access-key
 AWS_SECRET_ACCESS_KEY: your-secret-key
 MONGODB_URL: your-mongodb-connection-string
-MONGODB_DATABASE: crypto_trading_data
+MONGODB_DATABASE: model-collections
 ```
 
 ## 📈 Step 7: Historical Data Collection
@@ -488,7 +488,7 @@ def lambda_handler(event, context):
         
         # Set environment variables
         os.environ['MONGODB_URL'] = event.get('mongodb_url', 'mongodb://localhost:27017')
-        os.environ['MONGODB_DATABASE'] = event.get('mongodb_database', 'crypto_trading_data')
+        os.environ['MONGODB_DATABASE'] = event.get('mongodb_database', 'model-collections')
         
         # Run historical collection
         result = subprocess.run([
