@@ -55,7 +55,7 @@ jobs:
       
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
       
       - name: Build, tag, and push image
         env:
@@ -73,24 +73,73 @@ jobs:
             --task-definition $ECS_TASK_DEFINITION \
             --query taskDefinition > task-definition.json
       
-      - name: Fill in the new image ID
-        id: task-def
+      - name: Fill in the new image ID for API server
+        id: task-def-api
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: crypto-api
+          container-name: api-server
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+      
+      - name: Fill in the new image ID for data collection
+        id: task-def-data
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-api.outputs.task-definition }}
+          container-name: data-collection
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
       
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          task-definition: ${{ steps.task-def-data.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
       
-      - name: Run health check
+      - name: Get new public IP
+        id: get-ip
         run: |
           echo "Waiting for service to be stable..."
-          sleep 60
-          echo "Health check completed"
+          sleep 30
+          
+          # Get the task ARN
+          TASK_ARN=$(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --region $AWS_REGION --query 'taskArns[0]' --output text)
+          echo "Task ARN: $TASK_ARN"
+          
+          # Get the network interface ID
+          ENI_ID=$(aws ecs describe-tasks --cluster $ECS_CLUSTER --tasks $TASK_ARN --region $AWS_REGION --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' --output text)
+          echo "ENI ID: $ENI_ID"
+          
+          # Get the public IP
+          PUBLIC_IP=$(aws ec2 describe-network-interfaces --network-interface-ids $ENI_ID --region $AWS_REGION --query 'NetworkInterfaces[0].Association.PublicIp' --output text)
+          echo "Public IP: $PUBLIC_IP"
+          
+          # Set output for other steps
+          echo "public-ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
+      
+      - name: Run health check
+        run: |
+          PUBLIC_IP="${{ steps.get-ip.outputs.public-ip }}"
+          echo "Testing API health at http://$PUBLIC_IP:5001/health"
+          
+          # Wait for API to be ready
+          for i in {1..10}; do
+            if curl -f -s "http://$PUBLIC_IP:5001/health" > /dev/null; then
+              echo "✅ API is healthy!"
+              break
+            else
+              echo "⏳ Waiting for API to be ready... (attempt $i/10)"
+              sleep 10
+            fi
+          done
+          
+          # Test the new latest endpoints
+          echo "Testing latest data endpoints..."
+          curl -s "http://$PUBLIC_IP:5001/latest" | jq '.data | keys' || echo "Latest endpoint test failed"
+          curl -s "http://$PUBLIC_IP:5001/latest/kraken" | jq '.data.market_data.exchange' || echo "Kraken latest endpoint test failed"
+          
+          echo "🎉 Deployment completed successfully!"
+          echo "🌐 API URL: http://$PUBLIC_IP:5001"
+          echo "📊 Health Check: http://$PUBLIC_IP:5001/health"
+          echo "🔥 Latest Data: http://$PUBLIC_IP:5001/latest"
