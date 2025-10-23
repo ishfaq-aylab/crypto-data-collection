@@ -172,7 +172,7 @@ class BinanceRealtimeCollectorFixed:
                 exchange=exchange,
                 symbol=symbol,
                 price=float(data.get("p", 0)),
-                quantity=float(data.get("q", 0)),
+                volume=float(data.get("q", 0)),
                 timestamp=datetime.fromtimestamp(data.get("T", 0) / 1000)
             )
 
@@ -200,8 +200,8 @@ class BinanceRealtimeCollectorFixed:
             order_book = OrderBookData(
                 exchange=exchange,
                 symbol=symbol,
-                bids=[{"price": float(b[0]), "size": float(b[1])} for b in bids[:10]],
-                asks=[{"price": float(a[0]), "size": float(a[1])} for a in asks[:10]],
+                bids=[[float(b[0]), float(b[1])] for b in bids[:10]],
+                asks=[[float(a[0]), float(a[1])] for a in asks[:10]],
                 timestamp=datetime.now()
             )
 

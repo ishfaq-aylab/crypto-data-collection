@@ -146,7 +146,7 @@ class OKXRealtimeCollectorFixed:
                 exchange=exchange,
                 symbol=inst_id,
                 price=float(trade.get("px", 0)),
-                quantity=float(trade.get("sz", 0)),
+                volume=float(trade.get("sz", 0)),
                 timestamp=datetime.fromtimestamp(int(trade.get("ts", 0)) / 1000)
             )
 
@@ -178,8 +178,8 @@ class OKXRealtimeCollectorFixed:
             order_book = OrderBookData(
                 exchange=exchange,
                 symbol=inst_id,
-                bids=[{"price": float(b[0]), "size": float(b[1])} for b in bids[:10]],
-                asks=[{"price": float(a[0]), "size": float(a[1])} for a in asks[:10]],
+                bids=[[float(b[0]), float(b[1])] for b in bids[:10]],
+                asks=[[float(a[0]), float(a[1])] for a in asks[:10]],
                 timestamp=datetime.now()
             )
 
