@@ -39,6 +39,7 @@ class OrderBookData(BaseModel):
     asks: List[List[float]]  # [[price, quantity], ...]
     timestamp: datetime
     exchange: str
+    level: Optional[int] = None  # Depth level (1, 2, 3, etc.)
 
 class TickPrice(BaseModel):
     """Tick price data model."""
@@ -49,6 +50,7 @@ class TickPrice(BaseModel):
     timestamp: datetime
     exchange: str
     side: Optional[str] = None  # 'buy' or 'sell'
+    trade_id: Optional[str] = None  # Unique trade identifier
 
 class VolumeLiquidity(BaseModel):
     """Volume and liquidity data model."""

@@ -176,7 +176,13 @@ class BinanceRealtimeCollectorFixed:
                 timestamp=datetime.fromtimestamp(data.get("T", 0) / 1000)
             )
 
-            await self.mongo.store_tick_price(tick_price)
+            await self.mongo.store_message(WebSocketMessage(
+                data_type=DataType.TICK_PRICES,
+                data=tick_price.dict(),
+                raw_message={"test": "tick"},
+                exchange=exchange,
+                timestamp=datetime.now()
+            ))
             self.stats["stored"] += 1
 
         except Exception as e:
@@ -202,10 +208,17 @@ class BinanceRealtimeCollectorFixed:
                 symbol=symbol,
                 bids=[[float(b[0]), float(b[1])] for b in bids[:10]],
                 asks=[[float(a[0]), float(a[1])] for a in asks[:10]],
-                timestamp=datetime.now()
+                timestamp=datetime.now(),
+                level=10  # Set depth level
             )
 
-            await self.mongo.store_order_book_data(order_book)
+            await self.mongo.store_message(WebSocketMessage(
+                data_type=DataType.ORDER_BOOK_DATA,
+                data=order_book.dict(),
+                raw_message={"test": "orderbook"},
+                exchange=exchange,
+                timestamp=datetime.now()
+            ))
             self.stats["stored"] += 1
 
         except Exception as e:
