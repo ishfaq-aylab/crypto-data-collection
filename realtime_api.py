@@ -743,12 +743,210 @@ def get_latest_specific(exchange, data_type):
         logger.error(f"Error getting latest {data_type} for {exchange}: {e}")
         return jsonify({"error": str(e)}), 500
 
+# Price API Endpoints
+@app.route('/price/binance/spot')
+def get_binance_spot_price():
+    """Get Binance spot price for BTCUSDT."""
+    try:
+        import requests
+        
+        url = "https://api.binance.com/api/v3/ticker/price"
+        params = {"symbol": "BTCUSDT"}
+        
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            return jsonify({
+                "exchange": "binance",
+                "type": "spot",
+                "symbol": "BTCUSDT",
+                "price": float(data['price']),
+                "timestamp": datetime.now().isoformat(),
+                "raw_response": data
+            })
+        else:
+            return jsonify({"error": f"Binance API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching Binance spot price: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/price/binance/futures')
+def get_binance_futures_price():
+    """Get Binance futures price for BTCUSDT."""
+    try:
+        import requests
+        
+        url = "https://fapi.binance.com/fapi/v1/ticker/price"
+        params = {"symbol": "BTCUSDT"}
+        
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            return jsonify({
+                "exchange": "binance",
+                "type": "futures",
+                "symbol": "BTCUSDT",
+                "price": float(data['price']),
+                "timestamp": datetime.now().isoformat(),
+                "raw_response": data
+            })
+        else:
+            return jsonify({"error": f"Binance Futures API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching Binance futures price: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/price/kraken/spot')
+def get_kraken_spot_price():
+    """Get Kraken spot price for XBTUSDT."""
+    try:
+        import requests
+        
+        url = "https://api.kraken.com/0/public/Ticker"
+        params = {"pair": "XBTUSDT"}
+        
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if 'result' in data and 'XBTUSDT' in data['result']:
+                price = float(data['result']['XBTUSDT']['c'][0])
+                return jsonify({
+                    "exchange": "kraken",
+                    "type": "spot",
+                    "symbol": "XBTUSDT",
+                    "price": price,
+                    "timestamp": datetime.now().isoformat(),
+                    "raw_response": data
+                })
+            else:
+                return jsonify({"error": "XBTUSDT not found in Kraken response"}), 500
+        else:
+            return jsonify({"error": f"Kraken API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching Kraken spot price: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/price/kraken/futures')
+def get_kraken_futures_price():
+    """Get Kraken futures price for XBTUSD."""
+    try:
+        import requests
+        
+        url = "https://futures.kraken.com/derivatives/api/v3/tickers"
+        
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if 'tickers' in data:
+                for ticker in data['tickers']:
+                    symbol = ticker.get('symbol', '')
+                    if symbol in ['PF_XBTUSD', 'PI_XBTUSD'] and ticker.get('last'):
+                        price = float(ticker['last'])
+                        return jsonify({
+                            "exchange": "kraken",
+                            "type": "futures",
+                            "symbol": symbol,
+                            "price": price,
+                            "timestamp": datetime.now().isoformat(),
+                            "raw_response": ticker
+                        })
+                return jsonify({"error": "XBTUSD futures not found in Kraken response"}), 500
+            else:
+                return jsonify({"error": "No tickers in Kraken response"}), 500
+        else:
+            return jsonify({"error": f"Kraken Futures API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching Kraken futures price: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/price/all')
+def get_all_prices():
+    """Get all four price endpoints in one call."""
+    try:
+        import requests
+        import concurrent.futures
+        import threading
+        
+        def fetch_binance_spot():
+            try:
+                response = requests.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    return {"exchange": "binance", "type": "spot", "symbol": "BTCUSDT", "price": float(data['price']), "raw_response": data}
+            except Exception as e:
+                return {"exchange": "binance", "type": "spot", "error": str(e)}
+            return {"exchange": "binance", "type": "spot", "error": "Failed to fetch"}
+        
+        def fetch_binance_futures():
+            try:
+                response = requests.get("https://fapi.binance.com/fapi/v1/ticker/price?symbol=BTCUSDT", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    return {"exchange": "binance", "type": "futures", "symbol": "BTCUSDT", "price": float(data['price']), "raw_response": data}
+            except Exception as e:
+                return {"exchange": "binance", "type": "futures", "error": str(e)}
+            return {"exchange": "binance", "type": "futures", "error": "Failed to fetch"}
+        
+        def fetch_kraken_spot():
+            try:
+                response = requests.get("https://api.kraken.com/0/public/Ticker?pair=XBTUSDT", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    if 'result' in data and 'XBTUSDT' in data['result']:
+                        return {"exchange": "kraken", "type": "spot", "symbol": "XBTUSDT", "price": float(data['result']['XBTUSDT']['c'][0]), "raw_response": data}
+            except Exception as e:
+                return {"exchange": "kraken", "type": "spot", "error": str(e)}
+            return {"exchange": "kraken", "type": "spot", "error": "Failed to fetch"}
+        
+        def fetch_kraken_futures():
+            try:
+                response = requests.get("https://futures.kraken.com/derivatives/api/v3/tickers", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    if 'tickers' in data:
+                        for ticker in data['tickers']:
+                            symbol = ticker.get('symbol', '')
+                            if symbol in ['PF_XBTUSD', 'PI_XBTUSD'] and ticker.get('last'):
+                                return {"exchange": "kraken", "type": "futures", "symbol": symbol, "price": float(ticker['last']), "raw_response": ticker}
+            except Exception as e:
+                return {"exchange": "kraken", "type": "futures", "error": str(e)}
+            return {"exchange": "kraken", "type": "futures", "error": "Failed to fetch"}
+        
+        # Fetch all prices concurrently
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [
+                executor.submit(fetch_binance_spot),
+                executor.submit(fetch_binance_futures),
+                executor.submit(fetch_kraken_spot),
+                executor.submit(fetch_kraken_futures)
+            ]
+            
+            results = [future.result() for future in futures]
+        
+        return jsonify({
+            "timestamp": datetime.now().isoformat(),
+            "prices": results
+        })
+        
+    except Exception as e:
+        logger.error(f"Error fetching all prices: {e}")
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     print(f"🚀 Starting Real-time Crypto Data API Server on port {Config.API_PORT}...")
     print("📊 Available endpoints:")
     print("  GET / - API information")
     print("  GET /health - Health check")
     print("  GET /realtime - All real-time data")
+    print("  GET /price/binance/spot - Binance spot price")
+    print("  GET /price/binance/futures - Binance futures price")
+    print("  GET /price/kraken/spot - Kraken spot price")
+    print("  GET /price/kraken/futures - Kraken futures price")
+    print("  GET /price/all - All prices in one call")
     print("  GET /realtime/<exchange> - Exchange-specific data")
     print("  GET /realtime/<exchange>/<symbol> - Symbol-specific data")
     print("  GET /market-data - Market data only")
