@@ -21,6 +21,7 @@ class BinanceRealtimeCollectorFixed:
     def __init__(self, symbols: List[str] | None = None):
         self.symbols = symbols or ["BTCUSDT", "BTCUSDC"]
         self.ws_url = "wss://stream.binance.com:9443/ws"
+        self.alt_ws_url = "wss://stream1.binance.com:9443/ws"  # Alternative endpoint
         self.mongo = SimpleMongoDBCollector()
         self.stats = {"stored": 0, "errors": 0, "reconnects": 0}
         self.max_retries = 5
@@ -44,6 +45,18 @@ class BinanceRealtimeCollectorFixed:
                     if response.status == 200:
                         logger.info("✅ Binance API connectivity test passed")
                         return True
+                    elif response.status == 451:
+                        logger.warning("⚠️ Binance API blocked due to geographic restrictions (HTTP 451)")
+                        logger.info("🔄 Attempting to use alternative endpoints...")
+                        # Try alternative endpoints
+                        try:
+                            async with session.get("https://api1.binance.com/api/v3/ping", timeout=10) as alt_response:
+                                if alt_response.status == 200:
+                                    logger.info("✅ Alternative Binance endpoint accessible")
+                                    return True
+                        except:
+                            pass
+                        return False
                     else:
                         logger.warning(f"⚠️ Binance API returned status {response.status}")
                         return False
@@ -70,13 +83,24 @@ class BinanceRealtimeCollectorFixed:
                 ssl_context.check_hostname = False
                 ssl_context.verify_mode = ssl.CERT_NONE
 
-                # Connect to WebSocket
-                ws = await websockets.connect(
-                    self.ws_url,
-                    ping_interval=20,
-                    ping_timeout=10,
-                    ssl=ssl_context
-                )
+                # Try primary WebSocket endpoint first
+                try:
+                    ws = await websockets.connect(
+                        self.ws_url,
+                        ping_interval=20,
+                        ping_timeout=10,
+                        ssl=ssl_context
+                    )
+                except Exception as e:
+                    logger.warning(f"⚠️ Primary WebSocket failed: {e}")
+                    logger.info("🔄 Trying alternative WebSocket endpoint...")
+                    # Try alternative endpoint
+                    ws = await websockets.connect(
+                        self.alt_ws_url,
+                        ping_interval=20,
+                        ping_timeout=10,
+                        ssl=ssl_context
+                    )
                 
                 logger.info("✅ Connected to Binance WebSocket")
                 return ws

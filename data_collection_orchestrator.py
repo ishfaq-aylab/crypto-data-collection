@@ -80,21 +80,21 @@ class SimpleOptimizedOrchestrator:
         logger.info("🔧 Initializing collectors...")
         
         # Import collectors directly (original approach)
-        from binance_realtime_collector import BinanceRealtimeCollector
+        from binance_realtime_collector_fixed import BinanceRealtimeCollectorFixed as BinanceRealtimeCollector
         from binance_funding_rates_collector import BinanceFundingRatesCollector
         from binance_open_interest_collector import BinanceOpenInterestCollector
         
-        from bybit_realtime_collector import BybitRealtimeCollector
+        from bybit_realtime_collector_fixed import BybitRealtimeCollectorFixed as BybitRealtimeCollector
         from bybit_funding_rates_collector import BybitFundingRatesCollector
         from bybit_open_interest_collector import BybitOpenInterestCollector
         
         from robust_kraken_collector import RobustKrakenCollector
         from kraken_futures_collector import KrakenFuturesCollector
         
-        from gate_realtime_collector import GateRealtimeCollector
+        from gate_realtime_collector_fixed import GateRealtimeCollectorFixed as GateRealtimeCollector
         from gate_futures_collector import GateFuturesCollector
         
-        from okx_realtime_collector import OKXRealtimeCollector
+        from okx_realtime_collector_fixed import OKXRealtimeCollectorFixed as OKXRealtimeCollector
         from okx_futures_websocket_collector import OKXFuturesWebSocketCollector
         
         # Create collectors (original approach)
