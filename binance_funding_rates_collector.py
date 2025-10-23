@@ -19,7 +19,21 @@ class BinanceFundingRatesCollector:
 
     def __init__(self, symbols: List[str] | None = None):
         self.symbols = symbols or ["BTCUSDT", "BTCUSDC"]
-        self.ws_url = "wss://fstream.binance.com/ws"
+        # Multiple Binance futures endpoints to try
+        self.ws_endpoints = [
+            "wss://fstream.binance.com/ws",
+            "wss://fstream1.binance.com/ws",
+            "wss://fstream2.binance.com/ws",
+            "wss://fstream3.binance.com/ws"
+        ]
+        self.api_endpoints = [
+            "https://fapi.binance.com",
+            "https://fapi1.binance.com",
+            "https://fapi2.binance.com", 
+            "https://fapi3.binance.com"
+        ]
+        self.current_ws_endpoint = 0
+        self.current_api_endpoint = 0
         self.mongo = SimpleMongoDBCollector()
         self.stats = {"stored": 0, "errors": 0}
 

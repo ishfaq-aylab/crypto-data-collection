@@ -20,8 +20,21 @@ class BinanceRealtimeCollectorFixed:
 
     def __init__(self, symbols: List[str] | None = None):
         self.symbols = symbols or ["BTCUSDT", "BTCUSDC"]
-        self.ws_url = "wss://stream.binance.com:9443/ws"
-        self.alt_ws_url = "wss://stream1.binance.com:9443/ws"  # Alternative endpoint
+        # Multiple Binance endpoints to try
+        self.ws_endpoints = [
+            "wss://stream.binance.com:9443/ws",
+            "wss://stream1.binance.com:9443/ws", 
+            "wss://stream2.binance.com:9443/ws",
+            "wss://stream3.binance.com:9443/ws"
+        ]
+        self.api_endpoints = [
+            "https://api.binance.com",
+            "https://api1.binance.com", 
+            "https://api2.binance.com",
+            "https://api3.binance.com"
+        ]
+        self.current_ws_endpoint = 0
+        self.current_api_endpoint = 0
         self.mongo = SimpleMongoDBCollector()
         self.stats = {"stored": 0, "errors": 0, "reconnects": 0}
         self.max_retries = 5
@@ -38,31 +51,28 @@ class BinanceRealtimeCollectorFixed:
         return params
 
     async def _test_connectivity(self) -> bool:
-        """Test if we can reach Binance API."""
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get("https://api.binance.com/api/v3/ping", timeout=10) as response:
-                    if response.status == 200:
-                        logger.info("✅ Binance API connectivity test passed")
-                        return True
-                    elif response.status == 451:
-                        logger.warning("⚠️ Binance API blocked due to geographic restrictions (HTTP 451)")
-                        logger.info("🔄 Attempting to use alternative endpoints...")
-                        # Try alternative endpoints
-                        try:
-                            async with session.get("https://api1.binance.com/api/v3/ping", timeout=10) as alt_response:
-                                if alt_response.status == 200:
-                                    logger.info("✅ Alternative Binance endpoint accessible")
-                                    return True
-                        except:
-                            pass
-                        return False
-                    else:
-                        logger.warning(f"⚠️ Binance API returned status {response.status}")
-                        return False
-        except Exception as e:
-            logger.error(f"❌ Binance API connectivity test failed: {e}")
-            return False
+        """Test if we can reach Binance API using multiple endpoints."""
+        for i, endpoint in enumerate(self.api_endpoints):
+            try:
+                async with aiohttp.ClientSession() as session:
+                    test_url = f"{endpoint}/api/v3/ping"
+                    async with session.get(test_url, timeout=10) as response:
+                        if response.status == 200:
+                            logger.info(f"✅ Binance API connectivity test passed using {endpoint}")
+                            self.current_api_endpoint = i
+                            return True
+                        elif response.status == 451:
+                            logger.warning(f"⚠️ Binance API blocked at {endpoint} (HTTP 451)")
+                            continue
+                        else:
+                            logger.warning(f"⚠️ Binance API at {endpoint} returned status {response.status}")
+                            continue
+            except Exception as e:
+                logger.warning(f"❌ Binance API connectivity test failed for {endpoint}: {e}")
+                continue
+        
+        logger.error("❌ All Binance API endpoints failed - geographic restrictions may apply")
+        return False
 
     async def _connect_with_retry(self) -> Optional[websockets.WebSocketServerProtocol]:
         """Connect to WebSocket with retry logic."""
@@ -83,24 +93,28 @@ class BinanceRealtimeCollectorFixed:
                 ssl_context.check_hostname = False
                 ssl_context.verify_mode = ssl.CERT_NONE
 
-                # Try primary WebSocket endpoint first
-                try:
-                    ws = await websockets.connect(
-                        self.ws_url,
-                        ping_interval=20,
-                        ping_timeout=10,
-                        ssl=ssl_context
-                    )
-                except Exception as e:
-                    logger.warning(f"⚠️ Primary WebSocket failed: {e}")
-                    logger.info("🔄 Trying alternative WebSocket endpoint...")
-                    # Try alternative endpoint
-                    ws = await websockets.connect(
-                        self.alt_ws_url,
-                        ping_interval=20,
-                        ping_timeout=10,
-                        ssl=ssl_context
-                    )
+                # Try multiple WebSocket endpoints
+                ws = None
+                for i, ws_endpoint in enumerate(self.ws_endpoints):
+                    try:
+                        logger.info(f"🔄 Trying WebSocket endpoint {i+1}/{len(self.ws_endpoints)}: {ws_endpoint}")
+                        ws = await websockets.connect(
+                            ws_endpoint,
+                            ping_interval=20,
+                            ping_timeout=10,
+                            ssl=ssl_context
+                        )
+                        logger.info(f"✅ Connected to WebSocket endpoint: {ws_endpoint}")
+                        self.current_ws_endpoint = i
+                        break
+                    except Exception as e:
+                        logger.warning(f"⚠️ WebSocket endpoint {ws_endpoint} failed: {e}")
+                        if i < len(self.ws_endpoints) - 1:
+                            logger.info("🔄 Trying next endpoint...")
+                            continue
+                        else:
+                            logger.error("❌ All WebSocket endpoints failed")
+                            return None
                 
                 logger.info("✅ Connected to Binance WebSocket")
                 return ws

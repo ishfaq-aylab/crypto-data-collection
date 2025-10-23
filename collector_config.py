@@ -97,9 +97,21 @@ DATA_TYPE_CONFIGS = {
 }
 
 # MongoDB configuration
+# Parse MongoDB URL properly (handle URLs with passwords)
+mongodb_url_parts = Config.MONGODB_URL.split("://")[1]
+if "@" in mongodb_url_parts:
+    # URL has username:password@host:port format
+    auth_part, host_part = mongodb_url_parts.split("@", 1)
+    host = host_part.split(":")[0]
+    port = int(host_part.split(":")[1].split("/")[0])
+else:
+    # URL has host:port format
+    host = mongodb_url_parts.split(":")[0]
+    port = int(mongodb_url_parts.split(":")[1].split("/")[0])
+
 MONGODB_CONFIG = {
-    "host": Config.MONGODB_URL.split("://")[1].split(":")[0],
-    "port": int(Config.MONGODB_URL.split(":")[-1]),
+    "host": host,
+    "port": port,
     "database": Config.MONGODB_DATABASE,
     "collections": {
         "market_data": "market_data",

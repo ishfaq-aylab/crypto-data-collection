@@ -1,0 +1,82 @@
+{
+  "family": "crypto-api-task-dubai-v2",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::618628518037:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::618628518037:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "api-server",
+      "image": "618628518037.dkr.ecr.me-central-1.amazonaws.com/crypto-data-api:latest",
+      "command": ["gunicorn", "--config", "gunicorn.conf.py", "wsgi:application"],
+      "portMappings": [
+        {
+          "containerPort": 5001,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "MONGODB_URL",
+          "value": "mongodb://crypto_admin:CryptoData2024!@crypto-documentdb-cluster.cluster-cjauqosicplo.me-central-1.docdb.amazonaws.com:27017/crypto_data?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false&tlsAllowInvalidCertificates=true"
+        },
+        {
+          "name": "MONGODB_DATABASE",
+          "value": "crypto_data"
+        },
+        {
+          "name": "COLLECTION_DURATION",
+          "value": "0"
+        },
+        {
+          "name": "COLLECTION_POLL_INTERVAL",
+          "value": "30"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/crypto-api-dubai",
+          "awslogs-region": "me-central-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "essential": true
+    },
+    {
+      "name": "data-collection",
+      "image": "618628518037.dkr.ecr.me-central-1.amazonaws.com/crypto-data-api:latest",
+      "command": ["python", "run_data_collection.py"],
+      "environment": [
+        {
+          "name": "MONGODB_URL",
+          "value": "mongodb://crypto_admin:CryptoData2024!@crypto-documentdb-cluster.cluster-cjauqosicplo.me-central-1.docdb.amazonaws.com:27017/crypto_data?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false&tlsAllowInvalidCertificates=true"
+        },
+        {
+          "name": "MONGODB_DATABASE",
+          "value": "crypto_data"
+        },
+        {
+          "name": "COLLECTION_DURATION",
+          "value": "0"
+        },
+        {
+          "name": "COLLECTION_POLL_INTERVAL",
+          "value": "30"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/crypto-data-collection-dubai",
+          "awslogs-region": "me-central-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "essential": true
+    }
+  ]
+}
+
