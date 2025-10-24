@@ -863,13 +863,200 @@ def get_kraken_futures_price():
         logger.error(f"Error fetching Kraken futures price: {e}")
         return jsonify({"error": str(e)}), 500
 
+
+# Additional Exchange Price Endpoints
+@app.route('/price/bybit/spot')
+def get_bybit_spot_price():
+    """Get Bybit spot price for BTCUSDT."""
+    try:
+        import requests
+        
+        url = "https://api.bybit.com/v5/market/tickers"
+        params = {"category": "spot", "symbol": "BTCUSDT"}
+        
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if 'result' in data and 'list' in data['result'] and len(data['result']['list']) > 0:
+                ticker = data['result']['list'][0]
+                return jsonify({
+                    "exchange": "bybit",
+                    "type": "spot",
+                    "symbol": "BTCUSDT",
+                    "price": float(ticker['lastPrice']),
+                    "timestamp": datetime.now().isoformat(),
+                    "raw_response": ticker
+                })
+            else:
+                return jsonify({"error": "BTCUSDT not found in Bybit response"}), 500
+        else:
+            return jsonify({"error": f"Bybit API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching Bybit spot price: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/price/bybit/futures')
+def get_bybit_futures_price():
+    """Get Bybit futures price for BTCUSDT."""
+    try:
+        import requests
+        
+        url = "https://api.bybit.com/v5/market/tickers"
+        params = {"category": "linear", "symbol": "BTCUSDT"}
+        
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if 'result' in data and 'list' in data['result'] and len(data['result']['list']) > 0:
+                ticker = data['result']['list'][0]
+                return jsonify({
+                    "exchange": "bybit",
+                    "type": "futures",
+                    "symbol": "BTCUSDT",
+                    "price": float(ticker['lastPrice']),
+                    "timestamp": datetime.now().isoformat(),
+                    "raw_response": ticker
+                })
+            else:
+                return jsonify({"error": "BTCUSDT futures not found in Bybit response"}), 500
+        else:
+            return jsonify({"error": f"Bybit Futures API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching Bybit futures price: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/price/gate/spot')
+def get_gate_spot_price():
+    """Get Gate.io spot price for BTC_USDT."""
+    try:
+        import requests
+        
+        url = "https://api.gateio.ws/api/v4/spot/tickers"
+        params = {"currency_pair": "BTC_USDT"}
+        
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if len(data) > 0:
+                ticker = data[0]
+                return jsonify({
+                    "exchange": "gate",
+                    "type": "spot",
+                    "symbol": "BTC_USDT",
+                    "price": float(ticker['last']),
+                    "timestamp": datetime.now().isoformat(),
+                    "raw_response": ticker
+                })
+            else:
+                return jsonify({"error": "BTC_USDT not found in Gate.io response"}), 500
+        else:
+            return jsonify({"error": f"Gate.io API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching Gate.io spot price: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/price/gate/futures')
+def get_gate_futures_price():
+    """Get Gate.io futures price for BTC_USDT."""
+    try:
+        import requests
+        
+        url = "https://api.gateio.ws/api/v4/futures/usdt/tickers"
+        params = {"contract": "BTC_USDT"}
+        
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if len(data) > 0:
+                ticker = data[0]
+                return jsonify({
+                    "exchange": "gate",
+                    "type": "futures",
+                    "symbol": "BTC_USDT",
+                    "price": float(ticker['last']),
+                    "timestamp": datetime.now().isoformat(),
+                    "raw_response": ticker
+                })
+            else:
+                return jsonify({"error": "BTC_USDT futures not found in Gate.io response"}), 500
+        else:
+            return jsonify({"error": f"Gate.io Futures API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching Gate.io futures price: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/price/okx/spot')
+def get_okx_spot_price():
+    """Get OKX spot price for BTC-USDT."""
+    try:
+        import requests
+        
+        url = "https://www.okx.com/api/v5/market/ticker"
+        params = {"instId": "BTC-USDT"}
+        
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if 'data' in data and len(data['data']) > 0:
+                ticker = data['data'][0]
+                return jsonify({
+                    "exchange": "okx",
+                    "type": "spot",
+                    "symbol": "BTC-USDT",
+                    "price": float(ticker['last']),
+                    "timestamp": datetime.now().isoformat(),
+                    "raw_response": ticker
+                })
+            else:
+                return jsonify({"error": "BTC-USDT not found in OKX response"}), 500
+        else:
+            return jsonify({"error": f"OKX API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching OKX spot price: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/price/okx/futures')
+def get_okx_futures_price():
+    """Get OKX futures price for BTC-USDT-SWAP."""
+    try:
+        import requests
+        
+        url = "https://www.okx.com/api/v5/market/ticker"
+        params = {"instId": "BTC-USDT-SWAP"}
+        
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if 'data' in data and len(data['data']) > 0:
+                ticker = data['data'][0]
+                return jsonify({
+                    "exchange": "okx",
+                    "type": "futures",
+                    "symbol": "BTC-USDT-SWAP",
+                    "price": float(ticker['last']),
+                    "timestamp": datetime.now().isoformat(),
+                    "raw_response": ticker
+                })
+            else:
+                return jsonify({"error": "BTC-USDT-SWAP not found in OKX response"}), 500
+        else:
+            return jsonify({"error": f"OKX Futures API error: {response.status_code}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error fetching OKX futures price: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/price/all')
 def get_all_prices():
-    """Get all four price endpoints in one call."""
+    """Get all exchange prices (Binance, Kraken, Bybit, Gate.io, OKX) in one call."""
     try:
         import requests
         import concurrent.futures
-        import threading
         
         def fetch_binance_spot():
             try:
@@ -916,13 +1103,91 @@ def get_all_prices():
                 return {"exchange": "kraken", "type": "futures", "error": str(e)}
             return {"exchange": "kraken", "type": "futures", "error": "Failed to fetch"}
         
+        def fetch_bybit_spot():
+            try:
+                response = requests.get("https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    if 'result' in data and 'list' in data['result'] and len(data['result']['list']) > 0:
+                        ticker = data['result']['list'][0]
+                        return {"exchange": "bybit", "type": "spot", "symbol": "BTCUSDT", "price": float(ticker['lastPrice']), "raw_response": ticker}
+            except Exception as e:
+                return {"exchange": "bybit", "type": "spot", "error": str(e)}
+            return {"exchange": "bybit", "type": "spot", "error": "Failed to fetch"}
+        
+        def fetch_bybit_futures():
+            try:
+                response = requests.get("https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    if 'result' in data and 'list' in data['result'] and len(data['result']['list']) > 0:
+                        ticker = data['result']['list'][0]
+                        return {"exchange": "bybit", "type": "futures", "symbol": "BTCUSDT", "price": float(ticker['lastPrice']), "raw_response": ticker}
+            except Exception as e:
+                return {"exchange": "bybit", "type": "futures", "error": str(e)}
+            return {"exchange": "bybit", "type": "futures", "error": "Failed to fetch"}
+        
+        def fetch_gate_spot():
+            try:
+                response = requests.get("https://api.gateio.ws/api/v4/spot/tickers?currency_pair=BTC_USDT", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    if len(data) > 0:
+                        ticker = data[0]
+                        return {"exchange": "gate", "type": "spot", "symbol": "BTC_USDT", "price": float(ticker['last']), "raw_response": ticker}
+            except Exception as e:
+                return {"exchange": "gate", "type": "spot", "error": str(e)}
+            return {"exchange": "gate", "type": "spot", "error": "Failed to fetch"}
+        
+        def fetch_gate_futures():
+            try:
+                response = requests.get("https://api.gateio.ws/api/v4/futures/usdt/tickers?contract=BTC_USDT", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    if len(data) > 0:
+                        ticker = data[0]
+                        return {"exchange": "gate", "type": "futures", "symbol": "BTC_USDT", "price": float(ticker['last']), "raw_response": ticker}
+            except Exception as e:
+                return {"exchange": "gate", "type": "futures", "error": str(e)}
+            return {"exchange": "gate", "type": "futures", "error": "Failed to fetch"}
+        
+        def fetch_okx_spot():
+            try:
+                response = requests.get("https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    if 'data' in data and len(data['data']) > 0:
+                        ticker = data['data'][0]
+                        return {"exchange": "okx", "type": "spot", "symbol": "BTC-USDT", "price": float(ticker['last']), "raw_response": ticker}
+            except Exception as e:
+                return {"exchange": "okx", "type": "spot", "error": str(e)}
+            return {"exchange": "okx", "type": "spot", "error": "Failed to fetch"}
+        
+        def fetch_okx_futures():
+            try:
+                response = requests.get("https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT-SWAP", timeout=8)
+                if response.status_code == 200:
+                    data = response.json()
+                    if 'data' in data and len(data['data']) > 0:
+                        ticker = data['data'][0]
+                        return {"exchange": "okx", "type": "futures", "symbol": "BTC-USDT-SWAP", "price": float(ticker['last']), "raw_response": ticker}
+            except Exception as e:
+                return {"exchange": "okx", "type": "futures", "error": str(e)}
+            return {"exchange": "okx", "type": "futures", "error": "Failed to fetch"}
+        
         # Fetch all prices concurrently
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = [
                 executor.submit(fetch_binance_spot),
                 executor.submit(fetch_binance_futures),
                 executor.submit(fetch_kraken_spot),
-                executor.submit(fetch_kraken_futures)
+                executor.submit(fetch_kraken_futures),
+                executor.submit(fetch_bybit_spot),
+                executor.submit(fetch_bybit_futures),
+                executor.submit(fetch_gate_spot),
+                executor.submit(fetch_gate_futures),
+                executor.submit(fetch_okx_spot),
+                executor.submit(fetch_okx_futures)
             ]
             
             results = [future.result() for future in futures]
@@ -933,7 +1198,7 @@ def get_all_prices():
         })
         
     except Exception as e:
-        logger.error(f"Error fetching all prices: {e}")
+        logger.error(f"Error fetching all exchange prices: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
@@ -946,7 +1211,13 @@ if __name__ == '__main__':
     print("  GET /price/binance/futures - Binance futures price")
     print("  GET /price/kraken/spot - Kraken spot price")
     print("  GET /price/kraken/futures - Kraken futures price")
-    print("  GET /price/all - All prices in one call")
+    print("  GET /price/bybit/spot - Bybit spot price")
+    print("  GET /price/bybit/futures - Bybit futures price")
+    print("  GET /price/gate/spot - Gate.io spot price")
+    print("  GET /price/gate/futures - Gate.io futures price")
+    print("  GET /price/okx/spot - OKX spot price")
+    print("  GET /price/okx/futures - OKX futures price")
+    print("  GET /price/all - All exchange prices (10 prices)")
     print("  GET /realtime/<exchange> - Exchange-specific data")
     print("  GET /realtime/<exchange>/<symbol> - Symbol-specific data")
     print("  GET /market-data - Market data only")
